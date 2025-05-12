@@ -7,6 +7,7 @@ import com.ecommerce.sb_ecom.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ProductService {
@@ -28,5 +29,17 @@ public class ProductService {
         return allProducts.stream()
                 .map(productMapper::productToProductResponse)
                 .toList();
+    }
+
+    public ProductResponse productById(Long id) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
+        return productMapper.productToProductResponse(product);
+    }
+
+    public List<ProductResponse> fetchActiveProducts()
+    {
+                   return  productRepository.findByActiveTrue().stream()
+                            .map(productMapper::productToProductResponse).toList();
     }
 }
