@@ -42,4 +42,13 @@ public class ProductService {
                    return  productRepository.findByActiveTrue().stream()
                             .map(productMapper::productToProductResponse).toList();
     }
+    public List<ProductResponse> removeProduct(Long id)
+    {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
+        product.setActive(false);
+        productRepository.save(product);
+        return  productRepository.findByActiveTrue().stream()
+                .map(productMapper::productToProductResponse).toList();
+    }
 }
