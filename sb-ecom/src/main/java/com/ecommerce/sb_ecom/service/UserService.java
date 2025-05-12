@@ -1,10 +1,15 @@
 package com.ecommerce.sb_ecom.service;
 
 
+import com.ecommerce.sb_ecom.dto.UserResponse;
+import com.ecommerce.sb_ecom.mapper.UserMappper;
 import com.ecommerce.sb_ecom.model.User;
 import com.ecommerce.sb_ecom.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -16,5 +21,18 @@ public class UserService {
 
     public void createUser(User user){
        userRepository.save(user);
+    }
+    public List<UserResponse> getUsers(){
+        return Optional.of(userRepository.findAll())
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(UserMappper::userToUserResponse)
+                .toList();
+    }
+
+    public UserResponse getUserById(Long id) {
+        return userRepository.findById(id)
+                .map(UserMappper::userToUserResponse)  // Mapping to UserResponse
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));  // Exception if not found
     }
 }
