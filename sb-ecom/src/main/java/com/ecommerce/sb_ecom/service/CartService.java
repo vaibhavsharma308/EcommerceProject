@@ -1,0 +1,69 @@
+package com.ecommerce.sb_ecom.service;
+
+
+import com.ecommerce.sb_ecom.dto.CartItemRequest;
+import com.ecommerce.sb_ecom.model.CartItem;
+import com.ecommerce.sb_ecom.model.Product;
+import com.ecommerce.sb_ecom.model.User;
+import com.ecommerce.sb_ecom.repository.CartItemRepository;
+import com.ecommerce.sb_ecom.repository.ProductRepository;
+import com.ecommerce.sb_ecom.repository.UserRepository;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.util.Optional;
+
+@Service
+public class CartService {
+    private final UserRepository userRepository;
+    private final ProductRepository productRepository;
+    private final CartItemRepository cartItemRepository;
+
+    public CartService(UserRepository userRepository, ProductRepository productRepository, CartItemRepository cartItemRepository) {
+        this.userRepository = userRepository;
+        this.productRepository = productRepository;
+        this.cartItemRepository = cartItemRepository;
+    }
+
+    public Boolean addToCart(String userId, CartItemRequest request) {
+        Long productId = request.getProductId();
+        Optional<Product> productOpt = productRepository.findById(productId);
+        if (productOpt.isEmpty()) {
+            return false;
+        }
+        Product product = productOpt.get();
+        int requestQuantity = request.getQuantity();
+        int availableQuantity = Integer.parseInt(product.getStockQuantity());
+
+        if (requestQuantity >= availableQuantity) {
+            return false;
+        }
+        Optional<User> userOpt = userRepository.findById(Long.valueOf(userId));
+        if (userOpt.isEmpty()) {
+            return false;
+        }
+        User user = userOpt.get();
+        CartItem existingCart = cartItemRepository.findByUserAndProduct(user, product);
+        if (existingCart != null) {
+            int newQuantity = existingCart.getQuantity() + requestQuantity;
+            BigDecimal productPrice = product.getPrice();
+            BigDecimal newPrice = productPrice.multiply(BigDecimal.valueOf(requestQuantity));
+            existingCart.setQuantity(newQuantity);
+            existingCart.setPrice(newPrice);
+            product.setStockQuantity(String.valueOf(availableQuantity - requestQuantity));
+            productRepository.save(product);
+        } else {
+            CartItem cart = new CartItem();
+            BigDecimal productPrice = product.getPrice();
+            cart.setUser(user);
+            cart.setProduct(product);
+            cart.setPrice(productPrice);
+            cart.setQuantity(requestQuantity);
+            cart.setProduct(product);
+            cartItemRepository.save(cart);
+            product.setStockQuantity(String.valueOf(availableQuantity - requestQuantity));
+            productRepository.save(product);
+        }
+        return true;
+    }
+}
