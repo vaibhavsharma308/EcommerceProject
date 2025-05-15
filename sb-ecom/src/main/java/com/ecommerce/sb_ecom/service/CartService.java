@@ -8,12 +8,15 @@ import com.ecommerce.sb_ecom.model.User;
 import com.ecommerce.sb_ecom.repository.CartItemRepository;
 import com.ecommerce.sb_ecom.repository.ProductRepository;
 import com.ecommerce.sb_ecom.repository.UserRepository;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.Optional;
 
 @Service
+@Transactional
 public class CartService {
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
@@ -34,7 +37,6 @@ public class CartService {
         Product product = productOpt.get();
         int requestQuantity = request.getQuantity();
         int availableQuantity = Integer.parseInt(product.getStockQuantity());
-
         if (requestQuantity >= availableQuantity) {
             return false;
         }
@@ -65,5 +67,25 @@ public class CartService {
             productRepository.save(product);
         }
         return true;
+    }
+
+    public boolean removeItem(String userId, Long productId) {
+        Optional<Product> productOpt = productRepository.findById(productId);
+        if(productOpt.isEmpty()){
+            return false;
+        }
+        Product product = productOpt.get();
+        Long uId = Long.valueOf(userId);
+        Optional<User> userOpt = userRepository.findById(uId);
+        if(userOpt.isEmpty()){
+            return false;
+        }
+        User user = userOpt.get();
+        CartItem existingCart = cartItemRepository.findByUserAndProduct(user,product);
+        if(existingCart!=null){
+            cartItemRepository.deleteByUserAndProduct(user,product);
+            return true;
+        }
+        return false;
     }
 }
