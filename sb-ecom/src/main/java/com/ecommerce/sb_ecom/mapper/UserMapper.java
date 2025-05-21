@@ -4,8 +4,9 @@ import com.ecommerce.sb_ecom.dto.AddressDTO;
 import com.ecommerce.sb_ecom.dto.UserResponse;
 import com.ecommerce.sb_ecom.model.Address;
 import com.ecommerce.sb_ecom.model.User;
+import org.springframework.stereotype.Component;
 
-
+@Component
 public class UserMapper {
 
     public static UserResponse userToUserResponse(User user){
