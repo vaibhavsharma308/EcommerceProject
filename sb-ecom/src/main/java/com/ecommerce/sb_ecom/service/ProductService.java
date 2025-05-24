@@ -25,7 +25,7 @@ public class ProductService {
         return productMapper.productToProductResponse(savedProduct);
     }
 
-    public List<ProductResponse> fetchProducts() {
+        public List<ProductResponse> fetchProducts() {
         List<Product> allProducts = productRepository.findAll();
         return allProducts.stream()
                 .map(productMapper::productToProductResponse)

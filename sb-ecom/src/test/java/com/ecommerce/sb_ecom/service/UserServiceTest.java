@@ -95,5 +95,6 @@ public class UserServiceTest {
     @Test
     void runTest(){
         System.out.println("Running our first Test case");
+        System.out.println("Learning how to write Mockito test");
     }
 }

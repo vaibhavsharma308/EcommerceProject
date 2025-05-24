@@ -15,6 +15,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @ExtendWith(MockitoExtension.class)
 public class ProductServiceTest {
@@ -46,5 +49,18 @@ public class ProductServiceTest {
         ProductResponse actualProductResponse= productService.addProduct(productRequest);
         Assertions.assertEquals(actualProductResponse,productRespone);
 
+    }
+    @Test
+    void testFetchProducts(){
+        ProductRequest productRequest = createMockProductRequest();
+        Product product =productMapper.productRequestToProduct(productRequest);
+        List<Product> products = new ArrayList<>();
+        products.add(product);
+        ProductResponse productResponse = productMapper.productToProductResponse(product);
+        Mockito.when(productRepository.findAll()).thenReturn(products);
+        Mockito.when(productMapper.productToProductResponse(products.getFirst())).thenReturn(productResponse);
+        List<ProductResponse> actualProductResponse=productService.fetchProducts();
+        Assertions.assertNotNull(actualProductResponse);
+        Assertions.assertEquals(Arrays.asList(productResponse),actualProductResponse);
     }
 }
