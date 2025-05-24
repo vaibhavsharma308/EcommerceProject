@@ -17,11 +17,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.springframework.test.util.AssertionErrors.assertNotNull;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
@@ -34,6 +35,7 @@ public class UserServiceTest {
 
 
     public static User createMockUser() {
+
         Address mockAddress = new Address();
         mockAddress.setId(1L);
         mockAddress.setStreet("123 Main St");
@@ -43,6 +45,7 @@ public class UserServiceTest {
 
 
         User mockUser = new User();
+
         mockUser.setId(1L);
         mockUser.setFirstName("John");
         mockUser.setLastName("Doe");
@@ -74,7 +77,21 @@ public class UserServiceTest {
         assertEquals(actualuserResponse,userResponse);
     }
 
+    @Test
+    void getUsersTest(){
+      List<User> users = new ArrayList<>();
+      User mockUser1 = createMockUser();
+      mockUser1.setId(12L);
+      User mockUser2 = createMockUser();
+      mockUser2.setId(13L);
+      users.add(mockUser1);
+      users.add(mockUser2);
+      Mockito.when(userRepository.findAll()).thenReturn(users);
+      List<UserResponse> actutalUserResponse= userService.getUsers();
 
+      Assertions.assertEquals(actutalUserResponse,users
+              .stream().map(UserMapper::userToUserResponse).toList());
+    }
     @Test
     void runTest(){
         System.out.println("Running our first Test case");

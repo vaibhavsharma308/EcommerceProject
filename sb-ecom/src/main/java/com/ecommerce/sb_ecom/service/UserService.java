@@ -15,19 +15,15 @@ import java.util.Optional;
 public class UserService {
 
     UserRepository userRepository;
-
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
-
     public User createUser(User user) {
         return userRepository.save(user);
     }
-
     public List<UserResponse> getUsers() {
         return Optional.of(userRepository.findAll()).orElse(Collections.emptyList()).stream().map(UserMapper::userToUserResponse).toList();
     }
-
     public UserResponse getUserById(Long id) {
         return userRepository.findById(id).map(UserMapper::userToUserResponse)  // Mapping to UserResponse
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + id));  // Exception if not found
